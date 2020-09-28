@@ -118,7 +118,7 @@ void TrackCovariance::Process()
     candidate = static_cast<Candidate *>(candidate->Clone());
 
     candidate->Momentum.SetVectM(track.GetObsP(), mass);
-    candidate->InitialPosition.SetXYZT(track.GetObsX().X(),track.GetObsX().Y(),track.GetObsX().Z(),candidatePosition.T());
+    candidate->InitialPosition.SetXYZT(track.GetObsX().X()/1000.,track.GetObsX().Y()/1000.,track.GetObsX().Z()/1000.,candidatePosition.T());
 
     /*float p_pre = candidate->Momentum.P();
     float p_pre_px = candidate->Momentum.Px();
