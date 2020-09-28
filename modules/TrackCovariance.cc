@@ -104,16 +104,43 @@ void TrackCovariance::Process()
     const TLorentzVector &candidatePosition = candidate->InitialPosition;
     const TLorentzVector &candidateMomentum = candidate->Momentum;
 
-    mass = candidateMomentum.M();
+    //std::cout << "  x  " << candidatePosition.Vect().X() << "  y  " << candidatePosition.Vect().Y() << "  z  " << candidatePosition.Vect().Z() << std::endl;
 
-    ObsTrk track(candidatePosition.Vect(), candidateMomentum.Vect(), candidate->Charge, fBz, fCovariance);
+    mass = candidateMomentum.M();
+    TVector3 poscorrect;
+    poscorrect(0)=candidatePosition.Vect().X()/1000.;
+    poscorrect(1)=candidatePosition.Vect().Y()/1000.;
+    poscorrect(2)=candidatePosition.Vect().Z()/1000.;
+
+    ObsTrk track(poscorrect, candidateMomentum.Vect(), candidate->Charge, fBz, fCovariance);
 
     mother    = candidate;
     candidate = static_cast<Candidate *>(candidate->Clone());
 
     candidate->Momentum.SetVectM(track.GetObsP(), mass);
     candidate->InitialPosition.SetXYZT(track.GetObsX().X(),track.GetObsX().Y(),track.GetObsX().Z(),candidatePosition.T());
-    
+
+    /*float p_pre = candidate->Momentum.P();
+    float p_pre_px = candidate->Momentum.Px();
+    float p_pre_py = candidate->Momentum.Py();
+    float p_pre_pz = candidate->Momentum.Pz();
+    float p_after = candidate->Momentum.P();
+    float p_after_px = candidate->Momentum.Px();
+    float p_after_py = candidate->Momentum.Py();
+    float p_after_pz = candidate->Momentum.Pz();
+
+    if (p_pre>2.0){
+      std::cout << "p_pre " << p_pre << "  p_after  " << p_after << std::endl;
+      std::cout << "p_pre_px " << p_pre_px << "  p_after_px  " << p_after_px << "  track obs x " << track.GetObsP()[0]<< std::endl;
+      std::cout << "p_pre_py " << p_pre_py << "  p_after_py  " << p_after_py << "  track obs y " << track.GetObsP()[1]<<std::endl;
+      std::cout << "p_pre_pz " << p_pre_pz << "  p_after_pz  " << p_after_pz << "  track obs z " << track.GetObsP()[2]<<std::endl;
+      std::cout << "phi_pre  " << TMath::ATan(p_pre_py/p_pre_px) << "  phi_after  " << track.GetObsPar()[1] << std::endl;
+      float lambda =  TMath::ATan(p_pre/candidate->Momentum.Pt());
+      float theta = TMath::Pi()/2.-lambda;
+      float theta_after = TMath::ATan(1./track.GetObsPar()[4]);
+      std::cout << "theta_pre  " << theta << "  theta_after  " << theta_after << std::endl;
+      }*/
+
     // save full covariance 5x5 matrix internally (D0, phi, Curvature, dz, ctg(theta))
     candidate->TrackCovariance = track.GetCov();
 
